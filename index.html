@@ -6,10 +6,10 @@
 <title>Roleta de Pessoas</title>
 <style>
 body{font-family:Arial,sans-serif;background:#111827;color:#fff;text-align:center;margin:0;padding:20px}
-#wheelWrap{position:relative;width:380px;height:380px;margin:auto}
+#wheelWrap{position:relative;width:420px;height:420px;margin:auto}
 #wheel{width:100%;height:100%;border-radius:50%;border:8px solid #fff;transition:transform 5s cubic-bezier(.17,.67,.12,.99)}
 #pointer{position:absolute;top:-12px;left:50%;transform:translateX(-50%);width:0;height:0;border-left:20px solid transparent;border-right:20px solid transparent;border-top:40px solid #ef4444}
-#preview img{width:140px;height:140px;border-radius:50%;object-fit:cover;border:4px solid #fff}
+#preview img{width:180px;height:180px;border-radius:50%;object-fit:cover;border:6px solid #fff;box-shadow:0 0 25px rgba(255,255,255,.4)}
 button{padding:14px 28px;border:none;border-radius:30px;font-weight:bold;cursor:pointer}
 #spinBtn{background:#f59e0b;color:#fff}
 #claimBtn{background:#22c55e;color:#fff;display:none;margin-top:10px}
@@ -24,7 +24,7 @@ button{padding:14px 28px;border:none;border-radius:30px;font-weight:bold;cursor:
 </div>
 
 <div id="preview">
-<img id="currentImage" src="">
+<img id="currentImage" src="images/pessoa1.jpg">
 <h2 id="currentName">Aguardando sorteio...</h2>
 </div>
 
@@ -35,14 +35,13 @@ button{padding:14px 28px;border:none;border-radius:30px;font-weight:bold;cursor:
 const CLAIM_URL="https://SEU-SITE-DE-VALIDACAO.COM";
 
 const people=[
-{name:"João Silva",image:"https://www.petphotos.com.br/"},
-{name:"Maria Souza",image:"https://forbes.com.br/forbes-tech/2021/06/11-aplicativos-pet-para-facilitar-a-vida-de-quem-tem-animais-de-estimacao/"},
-{name:"Pedro Santos",image:"https://oglobo.globo.com/economia/caes-gatos-viram-negocio-bilionario-em-expansao-1-24266660"},
-{name:"Ana Costa",image:"https://br.freepik.com/fotos-vetores-gratis/pet"}
+ {name:"Participante Feliz",image:"images/pessoa1.jpg"},
+ {name:"Participante Desconfiado",image:"images/pessoa2.jpg"},
+ {name:"Participante Aprovado",image:"images/pessoa3.jpg"},
+ {name:"Participante Apaixonado",image:"images/pessoa4.png"}
 ];
 
-const colors=["#ef4444","#3b82f6","#22c55e","#a855f7","#f59e0b","#64748b"];
-
+const colors=["#ef4444","#3b82f6","#22c55e","#a855f7"];
 const wheel=document.getElementById("wheel");
 const svg=document.getElementById("segments");
 const img=document.getElementById("currentImage");
@@ -56,12 +55,29 @@ function polar(cx,cy,r,a){
 
 (function(){
  const cx=200,cy=200,r=190,ang=360/people.length;
+
  people.forEach((p,i)=>{
   const s=i*ang,e=s+ang,p1=polar(cx,cy,r,s),p2=polar(cx,cy,r,e);
+
   const path=document.createElementNS("http://www.w3.org/2000/svg","path");
   path.setAttribute("d",`M ${cx} ${cy} L ${p1.x} ${p1.y} A ${r} ${r} 0 0 1 ${p2.x} ${p2.y} Z`);
-  path.setAttribute("fill",colors[i%colors.length]);
+  path.setAttribute("fill",colors[i]);
   svg.appendChild(path);
+
+  const text=document.createElementNS("http://www.w3.org/2000/svg","text");
+  const mid=(s+e)/2;
+  const tx=200+120*Math.cos((mid-90)*Math.PI/180);
+  const ty=200+120*Math.sin((mid-90)*Math.PI/180);
+
+  text.setAttribute("x",tx);
+  text.setAttribute("y",ty);
+  text.setAttribute("fill","#fff");
+  text.setAttribute("font-size","14");
+  text.setAttribute("font-weight","bold");
+  text.setAttribute("text-anchor","middle");
+  text.textContent=p.name;
+
+  svg.appendChild(text);
  });
 })();
 
@@ -69,6 +85,8 @@ img.src=people[0].image;
 nameEl.textContent=people[0].name;
 
 document.getElementById("spinBtn").onclick=()=>{
+ claimBtn.style.display="none";
+
  let i=0;
  const timer=setInterval(()=>{
    img.src=people[i].image;
@@ -86,7 +104,9 @@ document.getElementById("spinBtn").onclick=()=>{
    clearInterval(timer);
    winner=people[winnerIndex];
    img.src=winner.image;
-   nameEl.innerHTML="🏆 "+winner.name;
+
+   nameEl.innerHTML="<span style='font-size:34px;color:#FFD700;font-weight:bold'>🏆 "+winner.name+"</span>";
+
    claimBtn.style.display="inline-block";
  },5000);
 };
