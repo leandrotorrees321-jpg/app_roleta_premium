@@ -2,114 +2,50 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Roleta Profissional</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mensagem</title>
+
 <style>
-body{margin:0;font-family:Arial,sans-serif;background:#111827;color:#fff;text-align:center}
-.container{max-width:1000px;margin:auto;padding:20px}
-#wheelWrap{position:relative;width:340px;height:340px;margin:20px auto}
-#wheel{width:100%;height:100%;border-radius:50%;border:8px solid #fff;transition:transform 5s cubic-bezier(.17,.67,.12,.99)}
-#pointer{position:absolute;top:-10px;left:50%;transform:translateX(-50%);width:0;height:0;border-left:18px solid transparent;border-right:18px solid transparent;border-top:35px solid #ef4444;z-index:10}
-button{padding:14px 28px;border:none;border-radius:30px;cursor:pointer;font-weight:bold}
-#spinBtn{background:#f59e0b;color:#fff}
-#claimBtn{background:#22c55e;color:#fff;display:none;margin-top:15px}
-#result{margin-top:20px;font-size:22px}
+body{
+    margin:0;
+    height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    font-family:Arial;
+    background:#222;
+}
+
+.popup{
+    background:white;
+    padding:25px;
+    border-radius:10px;
+    text-align:center;
+    width:300px;
+    box-shadow:0 0 20px rgba(0,0,0,.3);
+}
+
+button{
+    padding:10px 20px;
+    border:none;
+    border-radius:5px;
+    cursor:pointer;
+}
 </style>
 </head>
 <body>
-<div class="container">
-<h1>🎁 Grande Roleta de Prêmios</h1>
 
-<div id="wheelWrap">
-<div id="pointer"></div>
-<svg id="wheel" viewBox="0 0 400 400">
-<g id="segments"></g>
-</svg>
-</div>
-
-<button id="spinBtn">GIRAR ROLETA</button>
-<div id="result">Nenhum prêmio sorteado</div>
-<button id="claimBtn">🎉 Receber Prêmio</button>
+<div class="popup">
+    <h2>Mensagem</h2>
+    <p>Olá! Página carregada com sucesso.</p>
+    <button onclick="fechar()">OK</button>
 </div>
 
 <script>
-const CLAIM_URL = "https://SEU-SITE-DE-VALIDACAO.COM";
-
-const prizes=[
-"Vale Compra R$500",
-"Vale Compra R$200",
-"Pix R$100",
-"Kit Especial",
-"20% Desconto",
-"Tente Novamente"
-];
-
-const colors=["#ef4444","#3b82f6","#22c55e","#a855f7","#f59e0b","#64748b"];
-
-const svg=document.getElementById("segments");
-const wheel=document.getElementById("wheel");
-const spinBtn=document.getElementById("spinBtn");
-const claimBtn=document.getElementById("claimBtn");
-
-let selectedPrize="";
-
-function polar(cx,cy,r,a){
- return {
-   x:cx+r*Math.cos((a-90)*Math.PI/180),
-   y:cy+r*Math.sin((a-90)*Math.PI/180)
- };
-}
-
-function buildWheel(){
- const cx=200,cy=200,r=190;
- const angle=360/prizes.length;
-
- for(let i=0;i<prizes.length;i++){
-   const start=i*angle;
-   const end=start+angle;
-
-   const p1=polar(cx,cy,r,start);
-   const p2=polar(cx,cy,r,end);
-
-   const path=document.createElementNS("http://www.w3.org/2000/svg","path");
-   path.setAttribute("d",
-    `M ${cx} ${cy} L ${p1.x} ${p1.y} A ${r} ${r} 0 0 1 ${p2.x} ${p2.y} Z`
-   );
-   path.setAttribute("fill",colors[i]);
-   svg.appendChild(path);
-
-   const txt=document.createElementNS("http://www.w3.org/2000/svg","text");
-   const mid=(start+end)/2;
-   const pos=polar(cx,cy,120,mid);
-   txt.setAttribute("x",pos.x);
-   txt.setAttribute("y",pos.y);
-   txt.setAttribute("fill","#fff");
-   txt.setAttribute("font-size","12");
-   txt.setAttribute("text-anchor","middle");
-   txt.textContent=prizes[i];
-   svg.appendChild(txt);
- }
-}
-
-buildWheel();
-
-spinBtn.onclick=function(){
- const winner=Math.floor(Math.random()*prizes.length);
- const seg=360/prizes.length;
- const rot=3600+(360-(winner*seg)-seg/2);
-
- wheel.style.transform=`rotate(${rot}deg)`;
-
- setTimeout(()=>{
-   selectedPrize=prizes[winner];
-   result.innerHTML="🎉 Você ganhou: <b>"+selectedPrize+"</b>";
-   claimBtn.style.display="inline-block";
- },5000);
-}
-
-claimBtn.onclick=function(){
- location.href=CLAIM_URL+"?premio="+encodeURIComponent(selectedPrize);
+function fechar(){
+    document.querySelector('.popup').style.display = 'none';
 }
 </script>
+
 </body>
 </html>
