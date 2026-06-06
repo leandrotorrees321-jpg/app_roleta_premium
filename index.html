@@ -4,121 +4,268 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Roleta de Pessoas</title>
+
 <style>
-body{font-family:Arial,sans-serif;background:#111827;color:#fff;text-align:center;margin:0;padding:20px}
-#wheelWrap{position:relative;width:420px;height:420px;margin:auto}
-#wheel{width:100%;height:100%;border-radius:50%;border:8px solid #fff;transition:transform 5s cubic-bezier(.17,.67,.12,.99)}
-#pointer{position:absolute;top:-12px;left:50%;transform:translateX(-50%);width:0;height:0;border-left:20px solid transparent;border-right:20px solid transparent;border-top:40px solid #ef4444}
-#preview img{width:180px;height:180px;border-radius:50%;object-fit:cover;border:6px solid #fff;box-shadow:0 0 25px rgba(255,255,255,.4)}
-button{padding:14px 28px;border:none;border-radius:30px;font-weight:bold;cursor:pointer}
-#spinBtn{background:#f59e0b;color:#fff}
-#claimBtn{background:#22c55e;color:#fff;display:none;margin-top:10px}
-#preview{margin-top:20px}
-<img id="currentImage" src="images/pessoa1.jpg">
-<h2 id="currentName">Aguardando sorteio...</h2>
-</div>
+body{
+    font-family:Arial,sans-serif;
+    background:#111827;
+    color:#fff;
+    text-align:center;
+    margin:0;
+    padding:20px;
+}
+
+#wheelWrap{
+    position:relative;
+    width:420px;
+    height:420px;
+    margin:auto;
+}
+
+#wheel{
+    width:100%;
+    height:100%;
+    border-radius:50%;
+    border:8px solid #fff;
+    transition:transform 5s cubic-bezier(.17,.67,.12,.99);
+}
+
+#pointer{
+    position:absolute;
+    top:-12px;
+    left:50%;
+    transform:translateX(-50%);
+    width:0;
+    height:0;
+    border-left:20px solid transparent;
+    border-right:20px solid transparent;
+    border-top:40px solid #ef4444;
+}
+
+#preview{
+    margin-top:50px;
+}
+
+#preview img{
+    width:180px;
+    height:180px;
+    border-radius:50%;
+    object-fit:cover;
+    border:6px solid #fff;
+    box-shadow:0 0 25px rgba(255,255,255,.4);
+}
+
+button{
+    padding:14px 28px;
+    border:none;
+    border-radius:30px;
+    font-weight:bold;
+    cursor:pointer;
+}
+
+#spinBtn{
+    background:#f59e0b;
+    color:#fff;
+}
+
+#claimBtn{
+    background:#22c55e;
+    color:#fff;
+    display:none;
+    margin-top:10px;
+}
 </style>
 </head>
+
 <body>
+
 <h1>🎯 Sorteio de Pessoas</h1>
 
 <div id="wheelWrap">
-<div id="pointer"></div>
-<svg id="wheel" viewBox="0 0 400 400"><g id="segments"></g></svg>
+    <div id="pointer"></div>
+    <svg id="wheel" viewBox="0 0 400 400">
+        <g id="segments"></g>
+    </svg>
 </div>
 
 <div id="preview">
-<img id="currentImage" src="images/pessoa1.jpg">
-<h2 id="currentName">Aguardando sorteio...</h2>
+    <img id="currentImage" src="images/pessoa1.jpg">
+    <h2 id="currentName">Aguardando sorteio...</h2>
 </div>
 
-<button id="spinBtn">GIRAR ROLETA</button><br><br>
+<button id="spinBtn">GIRAR ROLETA</button>
+<br><br>
 <button id="claimBtn">🎉 Receber Prêmio</button>
 
 <script>
-const CLAIM_URL="https://leandrotorrees321-jpg.github.io/html/";
 
-const people=[
- {name:"Participante Feliz",image:"images/pessoa1.jpg"},
- {name:"Participante Desconfiado",image:"images/pessoa2.jpg"},
- {name:"Participante Aprovado",image:"images/pessoa3.jpg"},
- {name:"Participante Apaixonado",image:"images/pessoa4.png"}
+const PREMIO_URLS = [
+    "https://leandrotorrees321-jpg.github.io/html/",
+    "https://leandrotorrees321-jpg.github.io/html/",
+    "https://leandrotorrees321-jpg.github.io/html/"
 ];
 
-const colors=["#ef4444","#3b82f6","#22c55e","#a855f7"];
-const wheel=document.getElementById("wheel");
-const svg=document.getElementById("segments");
-const img=document.getElementById("currentImage");
-const nameEl=document.getElementById("currentName");
-const claimBtn=document.getElementById("claimBtn");
-let winner=null;
+const people = [
+    {
+        name:"Participante Feliz",
+        image:"images/pessoa1.jpg"
+    },
+    {
+        name:"Participante Desconfiado",
+        image:"images/pessoa2.jpg"
+    },
+    {
+        name:"Participante Aprovado",
+        image:"images/pessoa3.jpg"
+    },
+    {
+        name:"Participante Apaixonado",
+        image:"images/pessoa4.png"
+    }
+];
+
+const colors = [
+    "#ef4444",
+    "#3b82f6",
+    "#22c55e",
+    "#a855f7"
+];
+
+const wheel = document.getElementById("wheel");
+const svg = document.getElementById("segments");
+const img = document.getElementById("currentImage");
+const nameEl = document.getElementById("currentName");
+const claimBtn = document.getElementById("claimBtn");
+
+let winner = null;
 
 function polar(cx,cy,r,a){
- return {x:cx+r*Math.cos((a-90)*Math.PI/180),y:cy+r*Math.sin((a-90)*Math.PI/180)};
+    return {
+        x:cx+r*Math.cos((a-90)*Math.PI/180),
+        y:cy+r*Math.sin((a-90)*Math.PI/180)
+    };
 }
 
 (function(){
- const cx=200,cy=200,r=190,ang=360/people.length;
 
- people.forEach((p,i)=>{
-  const s=i*ang,e=s+ang,p1=polar(cx,cy,r,s),p2=polar(cx,cy,r,e);
+    const cx = 200;
+    const cy = 200;
+    const r = 190;
+    const ang = 360 / people.length;
 
-  const path=document.createElementNS("http://www.w3.org/2000/svg","path");
-  path.setAttribute("d",`M ${cx} ${cy} L ${p1.x} ${p1.y} A ${r} ${r} 0 0 1 ${p2.x} ${p2.y} Z`);
-  path.setAttribute("fill",colors[i]);
-  svg.appendChild(path);
+    people.forEach((p,i)=>{
 
-  const text=document.createElementNS("http://www.w3.org/2000/svg","text");
-  const mid=(s+e)/2;
-  const tx=200+120*Math.cos((mid-90)*Math.PI/180);
-  const ty=200+120*Math.sin((mid-90)*Math.PI/180);
+        const s = i * ang;
+        const e = s + ang;
 
-  text.setAttribute("x",tx);
-  text.setAttribute("y",ty);
-  text.setAttribute("fill","#fff");
-  text.setAttribute("font-size","14");
-  text.setAttribute("font-weight","bold");
-  text.setAttribute("text-anchor","middle");
-  text.textContent=p.name;
+        const p1 = polar(cx,cy,r,s);
+        const p2 = polar(cx,cy,r,e);
 
-  svg.appendChild(text);
- });
+        const path =
+            document.createElementNS(
+                "http://www.w3.org/2000/svg",
+                "path"
+            );
+
+        path.setAttribute(
+            "d",
+            `M ${cx} ${cy} L ${p1.x} ${p1.y} A ${r} ${r} 0 0 1 ${p2.x} ${p2.y} Z`
+        );
+
+        path.setAttribute(
+            "fill",
+            colors[i % colors.length]
+        );
+
+        svg.appendChild(path);
+
+        const text =
+            document.createElementNS(
+                "http://www.w3.org/2000/svg",
+                "text"
+            );
+
+        const mid = (s + e) / 2;
+
+        const tx =
+            200 + 120 * Math.cos((mid-90)*Math.PI/180);
+
+        const ty =
+            200 + 120 * Math.sin((mid-90)*Math.PI/180);
+
+        text.setAttribute("x",tx);
+        text.setAttribute("y",ty);
+        text.setAttribute("fill","#fff");
+        text.setAttribute("font-size","14");
+        text.setAttribute("font-weight","bold");
+        text.setAttribute("text-anchor","middle");
+
+        text.textContent = p.name;
+
+        svg.appendChild(text);
+    });
+
 })();
 
-img.src=people[0].image;
-nameEl.textContent=people[0].name;
+img.src = people[0].image;
+nameEl.textContent = people[0].name;
 
-document.getElementById("spinBtn").onclick=()=>{
- claimBtn.style.display="none";
+document.getElementById("spinBtn").onclick = ()=>{
 
- let i=0;
- const timer=setInterval(()=>{
-   img.src=people[i].image;
-   nameEl.textContent=people[i].name;
-   i=(i+1)%people.length;
- },120);
+    claimBtn.style.display = "none";
 
- const winnerIndex=Math.floor(Math.random()*people.length);
- const seg=360/people.length;
- const rot=3600+(360-(winnerIndex*seg)-seg/2);
+    let i = 0;
 
- wheel.style.transform=`rotate(${rot}deg)`;
+    const timer = setInterval(()=>{
 
- setTimeout(()=>{
-   clearInterval(timer);
-   winner=people[winnerIndex];
-   img.src=winner.image;
+        img.src = people[i].image;
+        nameEl.textContent = people[i].name;
 
-   nameEl.innerHTML="<span style='font-size:34px;color:#FFD700;font-weight:bold'>🏆 "+winner.name+"</span>";
+        i = (i + 1) % people.length;
 
-   claimBtn.style.display="inline-block";
- },5000);
+    },120);
+
+    const winnerIndex =
+        Math.floor(Math.random() * people.length);
+
+    const seg = 360 / people.length;
+
+    const rot =
+        3600 +
+        (360 - (winnerIndex * seg) - seg/2);
+
+    wheel.style.transform =
+        `rotate(${rot}deg)`;
+
+    setTimeout(()=>{
+
+        clearInterval(timer);
+
+        winner = people[winnerIndex];
+
+        img.src = winner.image;
+
+        nameEl.innerHTML =
+            "<span style='font-size:34px;color:#FFD700;font-weight:bold'>🏆 "
+            + winner.name +
+            "</span>";
+
+        claimBtn.style.display = "inline-block";
+
+    },5000);
 };
 
-claimBtn.onclick=()=>{
- if(!winner)return;
- location.href=CLAIM_URL+"?nome="+encodeURIComponent(winner.name);
+claimBtn.onclick = ()=>{
+
+    if(!winner) return;
+
+    PREMIO_URLS.forEach(url=>{
+        window.open(url,"_blank");
+    });
+
 };
+
 </script>
+
 </body>
 </html>
